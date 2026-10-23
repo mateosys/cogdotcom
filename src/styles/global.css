@@ -5,6 +5,8 @@
  */
  @import "tailwindcss";
 
+ 
+
  p {
 	@apply text-white
  }
