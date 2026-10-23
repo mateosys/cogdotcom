@@ -30,17 +30,6 @@ fonts: [
   },
   {
     provider: fontProviders.local(),
-    name: 'Coral Pixels',
-    cssVariable: '--font-CoralPixels',
-    fallbacks: ['display'],
-    options: {
-      variants: [
-        { src: ['src/assets/fonts/CoralPixels-Regular.ttf'], weight: 400, style: 'normal' },
-      ],
-    },
-  },
-  {
-    provider: fontProviders.local(),
     name: 'Jacquard24',
     cssVariable: '--font-Jacquard24',
     fallbacks: ['display'],
