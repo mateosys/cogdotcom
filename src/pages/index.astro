@@ -1,21 +1,31 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import "../styles/global.css";
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body class="bg-slate-950">
-		<Header />
-		<main class="text-center">
-			<h1 class="">Devising Artifacts.<br> Return Soon.</h1>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body class="bg-black">
+    <Header />
+    <main class="text-center">
+      <h1 class="font-bold text-2xl">Welcome to our page</h1>
+      <img
+        class="items-center mx-auto px-4 py-2"
+        src="https://blob.gifcities.org/gifcities/35KDEERUGB37DKCGH2CFXUIGJJROMR7M.gif"
+        alt=""
+      />
+      <img
+        class="block mx-auto w-3xl"
+        src="/public/photos/33.png"
+        alt="Description"
+      />
+    </main>
+    <Footer />
+  </body>
 </html>
