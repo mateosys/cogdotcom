@@ -1,0 +1,33 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import "../styles/global.css";
+import '../styles/cog.css';
+import Frame from '../components/cog/Frame.astro';
+import Divider from '../components/cog/Divider.astro';
+import Player from '../components/cog/Player.astro';
+import SpotifyEmbed from '../components/cog/SpotifyEmbed.astro';
+import DitherImage from '../components/cog/DitherImage.astro';
+const densities = ['12', '25', '50', '75', '88'];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body class="bg-black">
+    <Header />
+    <main class="text-center">
+      <h1 class="mb-4 font-bold text-2xl">Latest Release</h1>
+     <div class="px-4">
+      <SpotifyEmbed title="LATEST RELEASE" url="https://open.spotify.com/album/3orQzWkPvOtABfnwueHCmX" />
+     </div>
+    
+
+    </main>
+    <Footer />
+  </body>
+</html>

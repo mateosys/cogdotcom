@@ -1,0 +1,17 @@
+---
+/** <Divider variant="fade" />
+ *  variants: "dither" | "fade" | "blood" | "pipe" | "rivets"
+ *  color:    dot colour for fade/blood, e.g. color="#8cff9e"  */
+interface Props { variant?: 'dither' | 'fade' | 'blood' | 'pipe' | 'rivets'; color?: string; class?: string }
+const { variant = 'dither', color, class: className = '' } = Astro.props;
+const banded = variant === 'fade' || variant === 'blood';
+// density of each band, left to right: thin → solid → thin
+const bands = ['12', '25', '50', '75', '88', '75', '50', '25', '12'];
+---
+{banded ? (
+  <div role="separator" class:list={['cog-divider', `cog-divider--${variant}`, className]} style={color ? `--d-color:${color}` : undefined}>
+    {bands.map((b) => <span class="cog-divider__band" style={`--b: var(--cog-bayer-${b})`}></span>)}
+  </div>
+) : (
+  <hr class:list={['cog-divider', `cog-divider--${variant}`, className]} />
+)}

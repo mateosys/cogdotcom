@@ -1,0 +1,265 @@
+
+
+
+/* ==========================================================================
+   COVEN OF GUILT · visual system
+   Colours, textures and frame styles. Import once (BaseHead.astro is a good
+   place):  import '../styles/cog.css';
+   Tweak the values in :root to restyle everything at once.
+   ========================================================================== */
+
+   :root {
+    /* ── Palette ─────────────────────────────────────────────── */
+    --cog-void: #0a0907;          /* page black, slightly warm */
+    --cog-soot: #16130e;          /* inside of frames */
+    --cog-parchment: #d9cfa6;     /* body text */
+    --cog-silver-hi: #bababa;  
+    --cog-silver: #979696; 
+    --cog-silver-lo: #555555;         
+    --cog-bronze-hi: #a0784a;    
+    --cog-gold: #b8975a;          /* thin rules, labels */
+    --cog-gold-dim: #6e5833;
+    --cog-bronze-hi: #a0784a;     /* metal highlights */
+    --cog-bronze: #6b4a2b;
+    --cog-bronze-lo: #2e1f12;     /* metal shadows */
+    --cog-rust: #7a3b22;
+    --cog-blood: #c0281f;         /* your red accent */
+    --cog-bone-hi: #cdc4b2;       /* biomech highlights */
+    --cog-bone: #8a8273;
+    --cog-bone-lo: #2a2621;
+    --cog-phosphor: #8cff9e;      /* CRT green */
+    --cog-phosphor-dim: #1d4f2a;
+  
+    /* ── Type ────────────────────────────────────────────────── */
+    --cog-mono: var(--font-vt323, "VT323"), ui-monospace, monospace;  /* see HOW-TO for loading VT323 */
+  
+    /* ── Textures (inline SVG, no image files needed) ────────── */
+    /* film grain / grime: lay over any surface */
+    --cog-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* 1-bit dither, like the checker border on the tomb poster */
+    --cog-dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Cpath fill='%23bdbdbd' d='M0 0h1v1H0zM2 0h1v1H2zM4 0h2v1H4zM7 0h1v1H7zM1 1h1v1H1zM3 1h2v1H3zM6 1h1v1H6zM0 2h2v1H0zM2 2h1v1H2zM5 2h1v1H5zM7 2h1v1H7zM1 3h1v1H1zM3 3h1v1H3zM4 3h1v1H4zM6 3h2v1H6zM0 4h1v1H0zM2 4h2v1H2zM5 4h1v1H5zM7 4h1v1H7zM1 5h2v1H1zM4 5h1v1H4zM6 5h1v1H6zM0 6h1v1H0zM3 6h1v1H3zM5 6h2v1H5zM2 7h1v1H2zM4 7h1v1H4zM7 7h1v1H7z'/%3E%3C/svg%3E");
+    --cog-scanlines: repeating-linear-gradient(to bottom, rgba(0,0,0,.35) 0 1px, transparent 1px 3px);
+  
+    /* ── DITHER LIBRARY ──────────────────────────────────────────
+       Ordered (Bayer 4×4) patterns at 5 densities, plus dither ramps
+       that fade from empty to solid. They're white-on-transparent, used
+       as MASKS so you can colour them anything (see .cog-dither below). */
+    --cog-dot: 2px;               /* size of one dither pixel. 3px = chunkier */
+    --cog-bayer-12: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 2h1v1H2z'/%3E%3C/svg%3E");
+    --cog-bayer-25: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 0h1v1H2zM0 2h1v1H0zM2 2h1v1H2z'/%3E%3C/svg%3E");
+    --cog-bayer-50: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 0h1v1H2zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM2 2h1v1H2zM1 3h1v1H1zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-bayer-75: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM1 3h1v1H1zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-bayer-88: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM0 1h1v1H0zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM1 3h1v1H1zM2 3h1v1H2zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-ramp-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='64' viewBox='0 0 4 64' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM0 4h1v1H0zM2 6h1v1H2zM0 8h1v1H0zM2 8h1v1H2zM2 10h1v1H2zM0 12h1v1H0zM2 12h1v1H2zM0 14h1v1H0zM2 14h1v1H2zM0 16h1v1H0zM2 16h1v1H2zM1 17h1v1H1zM0 18h1v1H0zM2 18h1v1H2zM0 20h1v1H0zM2 20h1v1H2zM1 21h1v1H1zM0 22h1v1H0zM2 22h1v1H2zM3 23h1v1H3zM0 24h1v1H0zM2 24h1v1H2zM1 25h1v1H1zM3 25h1v1H3zM0 26h1v1H0zM2 26h1v1H2zM3 27h1v1H3zM0 28h1v1H0zM2 28h1v1H2zM1 29h1v1H1zM3 29h1v1H3zM0 30h1v1H0zM2 30h1v1H2zM1 31h1v1H1zM3 31h1v1H3zM0 32h1v1H0zM1 32h1v1H1zM2 32h1v1H2zM1 33h1v1H1zM3 33h1v1H3zM0 34h1v1H0zM2 34h1v1H2zM1 35h1v1H1zM3 35h1v1H3zM0 36h1v1H0zM1 36h1v1H1zM2 36h1v1H2zM1 37h1v1H1zM3 37h1v1H3zM0 38h1v1H0zM2 38h1v1H2zM3 38h1v1H3zM1 39h1v1H1zM3 39h1v1H3zM0 40h1v1H0zM1 40h1v1H1zM2 40h1v1H2zM3 40h1v1H3zM1 41h1v1H1zM3 41h1v1H3zM0 42h1v1H0zM2 42h1v1H2zM3 42h1v1H3zM1 43h1v1H1zM3 43h1v1H3zM0 44h1v1H0zM1 44h1v1H1zM2 44h1v1H2zM3 44h1v1H3zM1 45h1v1H1zM3 45h1v1H3zM0 46h1v1H0zM1 46h1v1H1zM2 46h1v1H2zM3 46h1v1H3zM1 47h1v1H1zM3 47h1v1H3zM0 48h1v1H0zM1 48h1v1H1zM2 48h1v1H2zM3 48h1v1H3zM0 49h1v1H0zM1 49h1v1H1zM3 49h1v1H3zM0 50h1v1H0zM1 50h1v1H1zM2 50h1v1H2zM3 50h1v1H3zM1 51h1v1H1zM3 51h1v1H3zM0 52h1v1H0zM1 52h1v1H1zM2 52h1v1H2zM3 52h1v1H3zM0 53h1v1H0zM1 53h1v1H1zM3 53h1v1H3zM0 54h1v1H0zM1 54h1v1H1zM2 54h1v1H2zM3 54h1v1H3zM1 55h1v1H1zM2 55h1v1H2zM3 55h1v1H3zM0 56h1v1H0zM1 56h1v1H1zM2 56h1v1H2zM3 56h1v1H3zM0 57h1v1H0zM1 57h1v1H1zM2 57h1v1H2zM3 57h1v1H3zM0 58h1v1H0zM1 58h1v1H1zM2 58h1v1H2zM3 58h1v1H3zM1 59h1v1H1zM2 59h1v1H2zM3 59h1v1H3zM0 60h1v1H0zM1 60h1v1H1zM2 60h1v1H2zM3 60h1v1H3zM0 61h1v1H0zM1 61h1v1H1zM2 61h1v1H2zM3 61h1v1H3zM0 62h1v1H0zM1 62h1v1H1zM2 62h1v1H2zM3 62h1v1H3zM0 63h1v1H0zM1 63h1v1H1zM2 63h1v1H2zM3 63h1v1H3z'/%3E%3C/svg%3E");  /* 64 dots tall: empty → solid */
+    --cog-ramp-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='64' viewBox='0 0 4 64' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM0 3h1v1H0zM1 3h1v1H1zM2 3h1v1H2zM3 3h1v1H3zM0 4h1v1H0zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM3 5h1v1H3zM0 6h1v1H0zM1 6h1v1H1zM2 6h1v1H2zM3 6h1v1H3zM1 7h1v1H1zM2 7h1v1H2zM3 7h1v1H3zM0 8h1v1H0zM1 8h1v1H1zM2 8h1v1H2zM3 8h1v1H3zM0 9h1v1H0zM1 9h1v1H1zM3 9h1v1H3zM0 10h1v1H0zM1 10h1v1H1zM2 10h1v1H2zM3 10h1v1H3zM1 11h1v1H1zM2 11h1v1H2zM3 11h1v1H3zM0 12h1v1H0zM1 12h1v1H1zM2 12h1v1H2zM3 12h1v1H3zM0 13h1v1H0zM1 13h1v1H1zM3 13h1v1H3zM0 14h1v1H0zM1 14h1v1H1zM2 14h1v1H2zM3 14h1v1H3zM1 15h1v1H1zM3 15h1v1H3zM0 16h1v1H0zM1 16h1v1H1zM2 16h1v1H2zM3 16h1v1H3zM1 17h1v1H1zM3 17h1v1H3zM0 18h1v1H0zM1 18h1v1H1zM2 18h1v1H2zM3 18h1v1H3zM1 19h1v1H1zM3 19h1v1H3zM0 20h1v1H0zM1 20h1v1H1zM2 20h1v1H2zM3 20h1v1H3zM1 21h1v1H1zM3 21h1v1H3zM0 22h1v1H0zM2 22h1v1H2zM3 22h1v1H3zM1 23h1v1H1zM3 23h1v1H3zM0 24h1v1H0zM1 24h1v1H1zM2 24h1v1H2zM1 25h1v1H1zM3 25h1v1H3zM0 26h1v1H0zM2 26h1v1H2zM3 26h1v1H3zM1 27h1v1H1zM3 27h1v1H3zM0 28h1v1H0zM1 28h1v1H1zM2 28h1v1H2zM1 29h1v1H1zM3 29h1v1H3zM0 30h1v1H0zM2 30h1v1H2zM1 31h1v1H1zM3 31h1v1H3zM0 32h1v1H0zM2 32h1v1H2zM1 33h1v1H1zM3 33h1v1H3zM0 34h1v1H0zM2 34h1v1H2zM1 35h1v1H1zM3 35h1v1H3zM0 36h1v1H0zM2 36h1v1H2zM1 37h1v1H1zM3 37h1v1H3zM0 38h1v1H0zM2 38h1v1H2zM3 39h1v1H3zM0 40h1v1H0zM2 40h1v1H2zM1 41h1v1H1zM0 42h1v1H0zM2 42h1v1H2zM3 43h1v1H3zM0 44h1v1H0zM2 44h1v1H2zM1 45h1v1H1zM0 46h1v1H0zM2 46h1v1H2zM0 48h1v1H0zM2 48h1v1H2zM0 50h1v1H0zM2 50h1v1H2zM0 52h1v1H0zM2 52h1v1H2zM2 54h1v1H2zM0 56h1v1H0zM2 58h1v1H2zM0 60h1v1H0z'/%3E%3C/svg%3E");  /* 64 dots tall: solid → empty */
+  
+  }
+  
+  /* ==========================================================================
+     DITHER UTILITIES
+     Add a dithered layer to ANY element:
+       <div class="cog-dither" style="--d: var(--cog-bayer-25); --d-color: #c0281f">
+     --d        which pattern (bayer-12/25/50/75/88, ramp-down, ramp-up)
+     --d-color  colour of the dots (default: current text colour)
+     The layer sits behind the element's content.
+     ========================================================================== */
+  .cog-dither { position: relative; isolation: isolate; }
+  .cog-dither::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: var(--d-color, currentColor);
+    -webkit-mask: var(--d, var(--cog-bayer-50)) 0 0 / calc(var(--cog-dot) * 4) var(--d-h, calc(var(--cog-dot) * 4));
+            mask: var(--d, var(--cog-bayer-50)) 0 0 / calc(var(--cog-dot) * 4) var(--d-h, calc(var(--cog-dot) * 4));
+    image-rendering: pixelated;
+  }
+  /* ramps: 64 dots tall, fade from the top (ramp-up) or toward the bottom (add class + --d: var(--cog-ramp-down)) */
+  .cog-dither--ramp::before { --d-h: calc(var(--cog-dot) * 64); -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
+  
+  /* Page backgrounds */
+  .cog-bg-dither { /* subtle all-over stipple */
+    background:
+      linear-gradient(var(--cog-void), var(--cog-void));
+    position: relative;
+  }
+  .cog-bg-dither::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: #2a241a;
+    -webkit-mask: var(--cog-bayer-12) 0 0 / calc(var(--cog-dot) * 4);
+            mask: var(--cog-bayer-12) 0 0 / calc(var(--cog-dot) * 4);
+  }
+  .cog-bg-dusk::before { /* blood-red dithered glow from the top of the page */
+    content: ""; position: fixed; inset: 0 0 auto; height: calc(var(--cog-dot) * 64); z-index: -1; pointer-events: none;
+    --cog-dot: 4px; background: var(--cog-blood); opacity: .5;
+    -webkit-mask: var(--cog-ramp-up) 0 0 / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+            mask: var(--cog-ramp-up) 0 0 / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+  }
+  
+  /* ==========================================================================
+     FRAMES
+     Every frame = outer "material" + inner content well.
+     <div class="cog-frame cog-frame--plate"><div class="cog-frame__inner">…</div></div>
+     (The Frame.astro component writes this markup for you.)
+     ========================================================================== */
+  
+  .cog-frame {
+    --frame-size: 18px;           /* border thickness, override per use */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--frame-size);
+    isolation: isolate;
+  }
+  .cog-frame__inner {
+    position: relative;
+    flex: 1;
+    background: var(--cog-soot);
+    color: var(--cog-parchment);
+  }
+  
+  /* ── 1. DITHER · 1-bit checker border (tomb poster) ─────────────────── */
+  .cog-frame--dither {
+    background: var(--cog-dither) 0 0 / 8px 8px;
+    image-rendering: pixelated;
+  }
+  .cog-frame--dither > .cog-frame__inner {
+    box-shadow: 0 0 0 2px #000, 0 0 0 4px #bdbdbd, 0 0 0 6px #000;
+    background: var(--cog-void);
+    isolation: isolate;
+  }
+  .cog-frame--dither > .cog-frame__inner::before { /* dithered light falling from the top */
+    content: ""; position: absolute; inset: 0 0 45%; z-index: -1; pointer-events: none;
+    background: var(--cog-gold-dim); opacity: .45;
+    -webkit-mask: var(--cog-ramp-up) 0 0 / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+            mask: var(--cog-ramp-up) 0 0 / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+  }
+  /* the music player keeps its original clean CRT-console look */
+  .cog-player .cog-frame--plate::before, .cog-player .cog-frame--plate::after { content: none; }
+  /* dither strength: <Frame variant="dither" class="cog-frame--dense"> */
+  .cog-frame--dither.cog-frame--dense { background-size: 4px 4px; }
+  
+  /* ── 2. PLATE · riveted bronze (Kinotrope / tomb console) ─────────── */
+  .cog-frame--plate {
+    --frame-size: 26px;
+    border-radius: 4px;
+    background:
+      var(--cog-grain),
+      linear-gradient(160deg, var(--cog-silver-hi), var(--cog-silver) 35%, var(--cog-silver-hi) 70%, var(--cog-silver-lo) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,230,190,.35),
+      inset 0 -2px 3px rgba(0,0,0,.6),
+      0 8px 24px rgba(0,0,0,.7);
+  }
+  .cog-frame--plate::before { /* dithered grime + shadow toward the bottom */
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+    background: #120b05; opacity: .55;
+    -webkit-mask: var(--cog-ramp-down) 0 100% / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+            mask: var(--cog-ramp-down) 0 100% / calc(var(--cog-dot) * 4) calc(var(--cog-dot) * 64) repeat-x;
+  }
+  .cog-frame--plate::after { /* fine stipple over the whole plate */
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+    background: #000; opacity: .25;
+    -webkit-mask: var(--cog-bayer-25) 0 0 / calc(var(--cog-dot) * 4);
+            mask: var(--cog-bayer-25) 0 0 / calc(var(--cog-dot) * 4);
+  }
+  .cog-frame--plate > .cog-frame__inner {
+    z-index: 1; /* sits above the plate's dither layers */
+    outline: 1px solid var(--cog-silver-lo);
+    outline-offset: -6px;
+    box-shadow: inset 0 3px 10px rgba(0,0,0,.9), 0 0 0 2px var(--cog-silver-lo), 0 1px 0 3px rgba(255,220,170,.15);
+  }
+  /* rivets: placed by Frame.astro, or add <i class="cog-rivet" style="top:…;left:…"> yourself */
+  .cog-rivet {
+    position: absolute;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(circle at 35% 30%, var(--cog-silver-hi), var(--cog-silver) 40%, var(--cog-silver-lo) 75%);
+    box-shadow: 0 1px 1px rgba(0,0,0,.8);
+    z-index: 1;
+  }
+  
+  /* ── 3. BONE · biomechanical ribs (Dark Seed / Giger) ─────────────── */
+  .cog-frame--bone {
+    --frame-size: 30px;
+    border-radius: 28px 28px 10px 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.8);
+  }
+  .cog-frame--bone::before { /* the ribbed material lives on its own layer so the sepia filter doesn't tint your content */
+    content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+    background:
+      var(--cog-grain),
+      repeating-radial-gradient(ellipse at 50% 50%,
+        var(--cog-bone-lo) 0 3px, var(--cog-bone) 5px, var(--cog-bone-hi) 6px, var(--cog-bone) 7px, var(--cog-bone-lo) 10px);
+    filter: sepia(.35) contrast(1.1);
+    box-shadow: inset 0 0 18px rgba(0,0,0,.85);
+  }
+  .cog-frame--bone::after { /* stippled shading on the ribs */
+    content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+    background: var(--cog-bone-lo); opacity: .6;
+    -webkit-mask: var(--cog-bayer-50) 0 0 / calc(var(--cog-dot) * 4);
+            mask: var(--cog-bayer-50) 0 0 / calc(var(--cog-dot) * 4);
+  }
+  .cog-frame--bone > .cog-frame__inner {
+    border-radius: 14px 14px 4px 4px;
+    box-shadow: inset 0 0 0 2px var(--cog-bone-lo), inset 0 6px 20px rgba(0,0,0,.9), 0 0 0 3px rgba(205,196,178,.35);
+  }
+  
+  /* ── 4. PANEL · thin gold double rule text box (tomb poster caption) ─ */
+  .cog-frame--panel {
+    --frame-size: 6px;
+    background: rgba(10,9,7,.85);
+  }
+  .cog-frame--panel::before { /* the border itself is dithered gold */
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: var(--cog-silver-hi);
+    -webkit-mask: var(--cog-bayer-50) 0 0 / calc(var(--cog-dot) * 4);
+            mask: var(--cog-bayer-50) 0 0 / calc(var(--cog-dot) * 4);
+  }
+  .cog-frame--panel > .cog-frame__inner {
+    border: 1px solid var(--cog-gold-dim);
+    background: var(--cog-void);
+    font-family: var(--cog-mono);
+    font-style: italic;
+    letter-spacing: .02em;
+    line-height: 1.45;
+    text-align: center;
+    padding: 1rem 1.25rem;
+  }
+  
+  /* ── Your own image border (when you have art): ─────────────────────
+     <Frame variant="image" image="/images/frame.png" slice={40} />  */
+  .cog-frame--image {
+    border: var(--frame-size) solid transparent;
+    border-image: var(--frame-image) var(--frame-slice, 30) round;
+    padding: 0;
+  }
+  
+  /* ==========================================================================
+     DIVIDERS
+     ========================================================================== */
+  .cog-divider { border: 0; margin: 2rem auto; height: 12px; width: 100%; }
+  .cog-divider--dither { background: var(--cog-dither) 0 0 / 8px 8px; image-rendering: pixelated; height: 8px; }
+  .cog-divider--fade, .cog-divider--blood { /* dense in the middle, dissolving at both ends */
+    display: grid; grid-template-columns: repeat(9, 1fr); height: 8px; background: none;
+  }
+  .cog-divider--blood { height: 12px; }
+  .cog-divider__band {
+    background: var(--d-color, var(--cog-gold));
+    -webkit-mask: var(--b) 0 0 / calc(var(--cog-dot) * 4); mask: var(--b) 0 0 / calc(var(--cog-dot) * 4);
+  }
+  .cog-divider--blood .cog-divider__band { background: var(--d-color, var(--cog-blood)); }
+  .cog-divider--pipe {
+    height: 10px; border-radius: 5px;
+    background: linear-gradient(to bottom, #f0d6a0, var(--cog-bronze-hi) 30%, var(--cog-bronze) 60%, var(--cog-bronze-lo));
+    box-shadow: 0 2px 3px rgba(0,0,0,.7);
+  }
+  .cog-divider--rivets {
+    height: 12px;
+    background:
+      radial-gradient(circle at 6px 6px, #e6c995 0 2px, #7a5a33 3px, transparent 4.5px) 0 0 / 28px 12px repeat-x,
+      linear-gradient(var(--cog-bronze-lo), var(--cog-bronze-lo)) center / 100% 2px no-repeat;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .cog-flicker { animation: none !important; }
+  }
+  

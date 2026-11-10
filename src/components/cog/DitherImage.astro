@@ -1,0 +1,134 @@
+---
+/**
+ * <DitherImage src="/photos/CoG.jpg" alt="The band live" />
+ *
+ * Shows a photo as a 1-bit dithered image, drawn in the visitor's browser.
+ * The original file is untouched, so the Download link can still point to it.
+ *
+ * src       image in public/ (same site only)
+ * alt       description for screen readers (required)
+ * mode      "bayer" (ordered, patterned, very 90s) | "floyd" (Floyd–Steinberg, grainy, photographic)
+ * dot       size of one dither pixel in screen px (2 = fine, 3–4 = chunky)
+ * dark      colour for the "off" pixels (default near-black)
+ * light     colour for the "on" pixels (default parchment). Try "#c0281f" or "#8cff9e".
+ * contrast  1 = normal, 1.3 = punchier
+ * reveal    true = hover/tap shows the original photo
+ */
+interface Props {
+  src: string;
+  alt: string;
+  mode?: 'bayer' | 'floyd';
+  dot?: number;
+  dark?: string;
+  light?: string;
+  contrast?: number;
+  reveal?: boolean;
+  class?: string;
+}
+const {
+  src, alt, mode = 'bayer', dot = 2, dark = '#0a0907', light = '#d9cfa6',
+  contrast = 1.15, reveal = false, class: className = '',
+} = Astro.props;
+---
+<figure
+  class:list={['cog-dimg', reveal && 'cog-dimg--reveal', className]}
+  data-dither-img
+  data-src={src}
+  data-mode={mode}
+  data-dot={dot}
+  data-dark={dark}
+  data-light={light}
+  data-contrast={contrast}
+  style={`background:${dark}`}
+>
+  <canvas role="img" aria-label={alt}></canvas>
+  {reveal && <img src={src} alt="" loading="lazy" class="cog-dimg__orig" aria-hidden="true" />}
+  <noscript><img src={src} alt={alt} style="width:100%;display:block" /></noscript>
+</figure>
+
+<style is:global>
+  .cog-dimg { position: relative; margin: 0; overflow: hidden; aspect-ratio: var(--ar, 4 / 3); }
+  .cog-dimg canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .cog-dimg__orig { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 300ms; }
+  .cog-dimg--reveal:hover .cog-dimg__orig, .cog-dimg--reveal:focus-within .cog-dimg__orig { opacity: 1; }
+</style>
+
+<script>
+  // Turns each [data-dither-img] photo into a 2-colour dithered picture.
+  const BAYER8 = [
+    [0, 32, 8, 40, 2, 34, 10, 42], [48, 16, 56, 24, 50, 18, 58, 26],
+    [12, 44, 4, 36, 14, 46, 6, 38], [60, 28, 52, 20, 62, 30, 54, 22],
+    [3, 35, 11, 43, 1, 33, 9, 41], [51, 19, 59, 27, 49, 17, 57, 25],
+    [15, 47, 7, 39, 13, 45, 5, 37], [63, 31, 55, 23, 61, 29, 53, 21],
+  ];
+
+  const hex = (h: string) => {
+    const n = parseInt(h.replace('#', '').padEnd(6, '0').slice(0, 6), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+
+  function render(fig: HTMLElement, img: HTMLImageElement) {
+    const canvas = fig.querySelector('canvas')!;
+    const dot = Number(fig.dataset.dot) || 2;
+    const contrast = Number(fig.dataset.contrast) || 1;
+    const [dr, dg, db] = hex(fig.dataset.dark || '#000');
+    const [lr, lg, lb] = hex(fig.dataset.light || '#fff');
+
+    // Low-res size: one canvas pixel per dither dot, cropped to the frame's shape (like object-fit: cover)
+    const W = Math.max(1, Math.round(fig.clientWidth / dot));
+    const H = Math.max(1, Math.round(fig.clientHeight / dot));
+    canvas.width = W; canvas.height = H;
+    const g = canvas.getContext('2d', { willReadFrequently: true })!;
+    const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const sw = W / scale, sh = H / scale;
+    g.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, 0, 0, W, H);
+
+    const px = g.getImageData(0, 0, W, H);
+    const d = px.data;
+    const lum = new Float32Array(W * H);
+    for (let i = 0; i < W * H; i++) {
+      const l = (0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255;
+      lum[i] = Math.min(1, Math.max(0, (l - 0.5) * contrast + 0.5));
+    }
+
+    const on = new Uint8Array(W * H);
+    if (fig.dataset.mode === 'floyd') {
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, old = lum[i], val = old > 0.5 ? 1 : 0, err = old - val;
+        on[i] = val;
+        if (x + 1 < W) lum[i + 1] += err * 7 / 16;
+        if (y + 1 < H) {
+          if (x > 0) lum[i + W - 1] += err * 3 / 16;
+          lum[i + W] += err * 5 / 16;
+          if (x + 1 < W) lum[i + W + 1] += err * 1 / 16;
+        }
+      }
+    } else {
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        on[i] = lum[i] > (BAYER8[y % 8][x % 8] + 0.5) / 64 ? 1 : 0;
+      }
+    }
+
+    for (let i = 0; i < W * H; i++) {
+      const o = i * 4;
+      d[o] = on[i] ? lr : dr; d[o + 1] = on[i] ? lg : dg; d[o + 2] = on[i] ? lb : db; d[o + 3] = 255;
+    }
+    g.putImageData(px, 0, 0);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-dither-img]').forEach((fig) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      // keep the photo's own shape unless the page set --ar
+      if (!fig.style.getPropertyValue('--ar') && !getComputedStyle(fig).getPropertyValue('--ar').trim()) {
+        fig.style.setProperty('--ar', `${img.naturalWidth} / ${img.naturalHeight}`);
+      }
+      render(fig, img);
+      let t: number;
+      new ResizeObserver(() => { clearTimeout(t); t = window.setTimeout(() => render(fig, img), 120); }).observe(fig);
+    };
+    img.src = fig.dataset.src!;
+  });
+</script>

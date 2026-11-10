@@ -4,6 +4,16 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import "../styles/global.css";
+import "../styles/cog.css";
+import { Image } from "astro:assets";
+import keyImage from "../assets/photos/home.png";
+import Divider from "../components/cog/Divider.astro";
+import "../styles/cog.css";
+import Frame from "../components/cog/Frame.astro";
+import Player from "../components/cog/Player.astro";
+import SpotifyEmbed from "../components/cog/SpotifyEmbed.astro";
+import DitherImage from "../components/cog/DitherImage.astro";
+const densities = ["12", "25", "50", "75", "88"];
 ---
 
 <!doctype html>
@@ -11,20 +21,25 @@ import "../styles/global.css";
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
-  <body class="bg-black">
+  <body class="void-background">
     <Header />
     <main class="text-center">
-      <h1 class="font-bold text-2xl">Welcome to our page</h1>
-      <img
-        class="items-center mx-auto px-4 py-2"
-        src="https://blob.gifcities.org/gifcities/35KDEERUGB37DKCGH2CFXUIGJJROMR7M.gif"
-        alt=""
-      />
-      <img
-        class="block mx-auto w-3xl"
-        src="/photos/33.png"
-        alt="Description"
-      />
+      <h1 class="mb-4 font-bold text-2xl">Welcome to our page</h1>
+      <div class="mx-auto px-4 max-w-xl">
+        
+          <figure class="border border-[]">
+            <DitherImage
+              src="/photos/CoG.jpg"
+              alt="Evil Band"
+              dot={1}
+              mode="bayer"
+              light="#c0281f"
+              
+            /><figcaption></figcaption>
+          </figure>
+      
+      </div>
+      
     </main>
     <Footer />
   </body>

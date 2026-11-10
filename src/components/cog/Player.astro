@@ -1,0 +1,294 @@
+---
+/**
+ * <Player tracks={[{ title: 'Song name', src: '/audio/song.mp3' }]} />
+ *
+ * Put the audio files in public/audio/ (mp3 is safest; each under 25 MB).
+ * label: the engraved name plate at the top-left.
+ */
+import Frame from './Frame.astro';
+
+interface Track { title: string; src: string; note?: string }
+interface Props { tracks: Track[]; label?: string; class?: string }
+const { tracks, label = 'COVEN OF GUILT', class: className = '' } = Astro.props;
+
+// Builds the SVG for one analog gauge (the needle moves with the music)
+const ticks = Array.from({ length: 11 }, (_, i) => {
+  const ang = (-50 + i * 10) * (Math.PI / 180);
+  const r1 = i % 5 === 0 ? 30 : 33, r2 = 37;
+  return {
+    x1: 50 + r1 * Math.sin(ang), y1: 48 - r1 * Math.cos(ang),
+    x2: 50 + r2 * Math.sin(ang), y2: 48 - r2 * Math.cos(ang), red: i >= 8,
+  };
+});
+const gauges = ['LOW', 'HIGH'];
+---
+<section class:list={['cog-player', className]} data-cog-player data-tracks={JSON.stringify(tracks)} aria-label="Music player">
+  <Frame variant="plate" innerClass="cog-player__body">
+    <!-- Top: name plate + gauges -->
+    <div class="cog-player__top">
+      <div class="cog-player__plate">{label}</div>
+      <div class="cog-player__gauges">
+        {gauges.map((g) => (
+          <svg class="cog-gauge" viewBox="0 0 100 62" role="img" aria-label={`${g} level meter`} data-gauge={g}>
+            <defs>
+              <radialGradient id={`face-${g}`} cx="50%" cy="80%" r="80%">
+                <stop offset="0" stop-color="#f1e6c4" /><stop offset="1" stop-color="#b9a77a" />
+              </radialGradient>
+            </defs>
+            <rect x="2" y="2" width="96" height="58" rx="6" fill="#2a1d10" />
+            <rect x="6" y="6" width="88" height="50" rx="4" fill={`url(#face-${g})`} />
+            {ticks.map((t) => (
+              <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.red ? '#a3221a' : '#2b2214'} stroke-width="1.2" />
+            ))}
+            <text x="50" y="40" text-anchor="middle" font-size="7" fill="#2b2214" font-family="monospace">{g}</text>
+            <g class="cog-gauge__needle"><line x1="50" y1="50" x2="50" y2="14" stroke="#1a120a" stroke-width="1.4" /></g>
+            <circle cx="50" cy="50" r="3.2" fill="#5a3f22" stroke="#1a120a" stroke-width=".8" />
+            <rect x="6" y="6" width="88" height="22" rx="4" fill="#fff" opacity=".12" />
+          </svg>
+        ))}
+      </div>
+    </div>
+
+    <!-- CRT screen -->
+    <div class="cog-screen">
+      <canvas class="cog-screen__viz" aria-hidden="true"></canvas>
+      <div class="cog-screen__text">
+        <p class="cog-screen__status" data-status>NO SIGNAL</p>
+        <p class="cog-screen__title" data-title>{tracks[0]?.title ?? '—'}</p>
+        <p class="cog-screen__time"><span data-current>00:00</span> / <span data-duration>00:00</span></p>
+      </div>
+    </div>
+
+    <!-- Seek "pipe" -->
+    <input class="cog-pipe" type="range" min="0" max="1000" value="0" data-seek aria-label="Seek" />
+
+    <!-- Controls -->
+    <div class="cog-player__controls">
+      <button class="cog-btn" data-prev aria-label="Previous track">
+        <svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z" /></svg>
+      </button>
+      <button class="cog-btn cog-btn--big" data-play aria-label="Play">
+        <svg viewBox="0 0 24 24" data-icon-play><path d="M7 4v16l13-8z" /></svg>
+        <svg viewBox="0 0 24 24" data-icon-pause ><path d="M6 4h4v16H6zM14 4h4v16h-4z" /></svg>
+      </button>
+      <button class="cog-btn" data-next aria-label="Next track">
+        <svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z" /></svg>
+      </button>
+      <label class="cog-vol">
+        <span>VOL</span>
+        <input class="cog-pipe cog-pipe--small" type="range" min="0" max="100" value="80" data-volume aria-label="Volume" />
+      </label>
+    </div>
+
+    <!-- Track list -->
+    <ol class="cog-tracklist">
+      {tracks.map((t, i) => (
+        <li>
+          <button data-track={i}>
+            <span class="cog-tracklist__n">{String(i + 1).padStart(2, '0')}</span>
+            <span class="cog-tracklist__t">{t.title}</span>
+            {t.note && <span class="cog-tracklist__note">{t.note}</span>}
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <audio preload="metadata" data-audio></audio>
+  </Frame>
+</section>
+
+<style is:global>
+  .cog-player { max-width: 560px; margin-inline: auto; font-family: var(--cog-mono); }
+  .cog-player__body { padding: 14px; display: grid; gap: 14px; }
+
+  .cog-player__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .cog-player__plate {
+    padding: 4px 10px; font-size: 13px; letter-spacing: .18em; color: #2a1a0c;
+    background: linear-gradient(#e7cf98, #a98552); border: 1px solid #3a2715; border-radius: 2px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(0,0,0,.8);
+    text-shadow: 0 1px 0 rgba(255,240,200,.6); white-space: nowrap;
+  }
+  .cog-player__gauges { display: flex; gap: 8px; }
+  .cog-gauge { width: 92px; height: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,.7)); }
+  .cog-gauge__needle { transform-origin: 50px 50px; transform: rotate(calc(-50deg + var(--level, 0) * 100deg)); transition: transform 80ms linear; }
+
+  .cog-screen {
+    position: relative; height: 170px; overflow: hidden; border-radius: 10px / 14px;
+    background: radial-gradient(ellipse at center, #0f2a16, #050b06 75%);
+    box-shadow: inset 0 0 0 3px #0c0c0a, inset 0 0 30px rgba(0,0,0,.95), 0 0 0 2px var(--cog-bronze-lo);
+    color: var(--cog-phosphor);
+  }
+  .cog-screen::after { /* scanlines + glass glare */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: var(--cog-scanlines), radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.08), transparent 60%);
+  }
+  .cog-screen__viz { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .85; }
+  .cog-screen__text { position: relative; z-index: 1; padding: 12px 16px; text-shadow: 0 0 6px var(--cog-phosphor), 0 0 14px rgba(140,255,158,.4); }
+  .cog-screen__status { margin: 0; font-size: 13px; letter-spacing: .2em; opacity: .75; }
+  .cog-screen__title { margin: 4px 0 0; font-size: 26px; line-height: 1.05; }
+  .cog-screen__time { margin: 2px 0 0; font-size: 15px; opacity: .85; }
+  .cog-player.is-idle .cog-screen__status { animation: cog-flicker 2.4s steps(1) infinite; }
+  @keyframes cog-flicker { 0%,100% { opacity: .75 } 48% { opacity: .2 } 52% { opacity: .9 } }
+
+  .cog-pipe { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; border-radius: 6px; cursor: pointer;
+    background: linear-gradient(to right, var(--cog-phosphor-dim) 0 var(--fill, 0%), transparent var(--fill, 0%)),
+                linear-gradient(#f0d6a0, var(--cog-bronze-hi) 30%, var(--cog-bronze) 60%, var(--cog-bronze-lo));
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.6), 0 1px 0 rgba(255,220,170,.2); }
+  .cog-pipe::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fbe3b2, #a07a48 45%, #3a2715 80%); box-shadow: 0 2px 3px rgba(0,0,0,.8); }
+  .cog-pipe::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fbe3b2, #a07a48 45%, #3a2715 80%); box-shadow: 0 2px 3px rgba(0,0,0,.8); }
+  .cog-pipe--small { width: 90px; height: 8px; }
+
+  .cog-player__controls { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .cog-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #f3d9a8, #a07a48 45%, #3a2715 85%);
+    box-shadow: 0 3px 0 #1c1209, 0 4px 8px rgba(0,0,0,.7), inset 0 -2px 3px rgba(0,0,0,.4); transition: transform 80ms, box-shadow 80ms; }
+  .cog-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1c1209, 0 2px 4px rgba(0,0,0,.7); }
+  .cog-btn:focus-visible { outline: 2px solid var(--cog-phosphor); outline-offset: 3px; }
+  .cog-btn [hidden] { display: none; }
+  .cog-btn svg { width: 18px; height: 18px; fill: #2a1a0c; }
+  .cog-btn--big { width: 58px; height: 58px; }
+  .cog-btn--big svg { width: 24px; height: 24px; }
+  .cog-vol { display: flex; align-items: center; gap: 6px; color: var(--cog-gold); font-size: 13px; letter-spacing: .15em; }
+
+  .cog-tracklist { list-style: none; margin: 0; padding: 6px; border: 1px solid var(--cog-gold-dim); background: rgba(0,0,0,.35); }
+  .cog-tracklist button { display: flex; gap: 10px; align-items: baseline; width: 100%; padding: 6px 8px; border: 0; background: none;
+    color: var(--cog-parchment); font: inherit; font-size: 17px; text-align: left; cursor: pointer; }
+  .cog-tracklist button:hover, .cog-tracklist button:focus-visible { background: rgba(184,151,90,.12); outline: none; }
+  .cog-tracklist [aria-current="true"] { color: var(--cog-phosphor); text-shadow: 0 0 6px rgba(140,255,158,.5); }
+  .cog-tracklist [aria-current="true"] .cog-tracklist__n::before { content: "▶ "; }
+  .cog-tracklist__n { color: var(--cog-gold); }
+  .cog-tracklist__note { margin-left: auto; color: var(--cog-gold-dim); font-size: 14px; }
+
+
+  @media (max-width: 420px) { .cog-gauge { width: 72px; } .cog-player__plate { font-size: 11px; letter-spacing: .12em; } .cog-screen { height: 140px; } }
+  @media (prefers-reduced-motion: reduce) { .cog-player.is-idle .cog-screen__status { animation: none; } .cog-gauge__needle { transition: none; } }
+</style>
+
+<script>
+  // Runs in the visitor's browser. Wires up every <Player> on the page.
+  const fmt = (s: number) => {
+    if (!isFinite(s)) return '00:00';
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-cog-player]').forEach((root) => {
+    const tracks: { title: string; src: string }[] = JSON.parse(root.dataset.tracks || '[]');
+    const $ = <T extends Element>(sel: string) => root.querySelector(sel) as T;
+    const audio = $<HTMLAudioElement>('[data-audio]');
+    const playBtn = $<HTMLButtonElement>('[data-play]');
+    const seek = $<HTMLInputElement>('[data-seek]');
+    const volume = $<HTMLInputElement>('[data-volume]');
+    const canvas = $<HTMLCanvasElement>('.cog-screen__viz');
+    const g = canvas.getContext('2d')!;
+    const needles = root.querySelectorAll<SVGGElement>('.cog-gauge__needle');
+    const trackBtns = root.querySelectorAll<HTMLButtonElement>('[data-track]');
+    const phosphor = getComputedStyle(root).getPropertyValue('--cog-phosphor').trim() || '#8cff9e';
+
+    let index = 0;
+    let ctx: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let data = new Uint8Array(64);
+    const level = [0, 0];
+
+    function load(i: number, autoplay = false) {
+      index = (i + tracks.length) % tracks.length;
+      audio.src = tracks[index].src;
+      $('[data-title]').textContent = tracks[index].title;
+      trackBtns.forEach((b, n) => b.setAttribute('aria-current', String(n === index)));
+      if (autoplay) play();
+    }
+
+    function setupAudioGraph() {
+      if (ctx) return;
+      ctx = new AudioContext();
+      const source = ctx.createMediaElementSource(audio);
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.75;
+      data = new Uint8Array(analyser.frequencyBinCount);
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+    }
+
+    function play() {
+      setupAudioGraph();
+      ctx?.resume();
+      audio.play();
+    }
+
+    function setPlaying(on: boolean) {
+      root.classList.toggle('is-idle', !on);
+      $('[data-status]').textContent = on ? '▶ PLAYING' : audio.currentTime > 0 ? '❚❚ PAUSED' : 'NO SIGNAL';
+      playBtn.setAttribute('aria-label', on ? 'Pause' : 'Play');
+      ($('[data-icon-play]') as SVGElement).toggleAttribute('hidden', on);
+      ($('[data-icon-pause]') as SVGElement).toggleAttribute('hidden', !on);
+    }
+
+    // Draws chunky LED-style bars on the screen and moves the gauge needles
+    function draw() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.clearRect(0, 0, w, h);
+
+      const playing = analyser && !audio.paused;
+      if (playing) analyser!.getByteFrequencyData(data);
+
+      // LED-style bars: stacked glowing segments, brighter toward the top
+      const bars = 32, gap = 3, bw = (w - gap * (bars - 1)) / bars, seg = 5;
+      g.fillStyle = phosphor;
+      g.shadowColor = phosphor;
+      g.shadowBlur = 8;
+      for (let i = 0; i < bars; i++) {
+        const v = playing ? data[Math.floor((i / bars) * data.length * 0.8)] / 255 : 0.02 + Math.random() * 0.03;
+        const bh = Math.max(seg, Math.floor((v * h * 0.55) / seg) * seg);
+        for (let y = 0; y < bh; y += seg) {
+          g.globalAlpha = 0.35 + 0.65 * (y / (h * 0.55));
+          g.fillRect(i * (bw + gap), h - y - seg + 1, bw, seg - 1);
+        }
+      }
+      g.globalAlpha = 1;
+
+      const avg = (a: number, b: number) => { let s = 0; for (let i = a; i < b; i++) s += data[i] || 0; return s / (b - a) / 255; };
+      const target = playing ? [avg(0, 6), Math.min(1, avg(14, 40) * 1.8)] : [0, 0];
+      needles.forEach((n, i) => {
+        level[i] += (target[i] - level[i]) * 0.25;
+        n.style.setProperty('--level', level[i].toFixed(3));
+      });
+      requestAnimationFrame(draw);
+    }
+
+    playBtn.addEventListener('click', () => (audio.paused ? play() : audio.pause()));
+    $('[data-prev]').addEventListener('click', () => load(audio.currentTime > 3 ? index : index - 1, !audio.paused));
+    $('[data-next]').addEventListener('click', () => load(index + 1, !audio.paused));
+    trackBtns.forEach((b) => b.addEventListener('click', () => load(Number(b.dataset.track), true)));
+
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => load(index + 1, index + 1 < tracks.length));
+    audio.addEventListener('loadedmetadata', () => ($('[data-duration]').textContent = fmt(audio.duration)));
+    audio.addEventListener('timeupdate', () => {
+      $('[data-current]').textContent = fmt(audio.currentTime);
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      seek.value = String(pct * 10);
+      seek.style.setProperty('--fill', pct + '%');
+    });
+    seek.addEventListener('input', () => {
+      if (audio.duration) audio.currentTime = (Number(seek.value) / 1000) * audio.duration;
+    });
+    volume.addEventListener('input', () => {
+      audio.volume = Number(volume.value) / 100;
+      volume.style.setProperty('--fill', volume.value + '%');
+    });
+    audio.volume = 0.8;
+    volume.style.setProperty('--fill', '80%');
+
+    if (tracks.length) load(0);
+    setPlaying(false);
+    requestAnimationFrame(draw);
+  });
+</script>

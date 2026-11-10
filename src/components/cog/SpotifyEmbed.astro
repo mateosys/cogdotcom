@@ -1,0 +1,59 @@
+---
+/**
+ * <SpotifyEmbed url="https://open.spotify.com/album/XXXXXXXX" />
+ *
+ * Paste any Spotify share link (album, track, playlist, artist or episode).
+ * In Spotify: … menu → Share → Copy link. Extra bits like "?si=…" are fine.
+ *
+ * frame:   any Frame variant ("plate" default, "dither", "bone", "panel")
+ * compact: true = the short one-row player (good for a single track)
+ * title:   optional engraved label above the player
+ */
+import Frame from './Frame.astro';
+
+interface Props {
+  url: string;
+  frame?: 'plate' | 'dither' | 'bone' | 'panel';
+  compact?: boolean;
+  title?: string;
+  class?: string;
+}
+const { url, frame = 'plate', compact, title, class: className = '' } = Astro.props;
+
+// Turn the normal share link into Spotify's embed link
+const match = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(album|track|playlist|artist|episode|show)\/([A-Za-z0-9]+)/);
+if (!match) {
+  throw new Error(`SpotifyEmbed: "${url}" doesn't look like a Spotify link. Copy it from Spotify → Share → Copy link.`);
+}
+const [, type, id] = match;
+const embedSrc = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+
+// Spotify's two standard heights: one-row player, or full player with track list
+const isShort = compact ?? (type === 'track' || type === 'episode');
+const height = isShort ? 152 : 352;
+---
+<div class:list={['cog-spotify', className]}>
+  <!-- {title && <div class="cog-player__plate cog-spotify__label">{title}</div>} -->
+  <Frame variant={frame} innerClass="cog-spotify__well">
+    <iframe
+      src={embedSrc}
+      width="100%"
+      height={height}
+      style="border:0;display:block;border-radius:12px"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy"
+      title={title ? `${title} on Spotify` : 'Spotify player'}
+    ></iframe>
+  </Frame>
+</div>
+
+<style is:global>
+  .cog-spotify { max-width: 560px; margin-inline: auto; }
+  .cog-spotify__label {
+    display: inline-block; margin: 0 0 10px 6px; padding: 4px 10px;
+    font-family: var(--cog-mono); font-size: 13px; letter-spacing: .18em; color: #2a1a0c;
+    background: linear-gradient(#e7cf98, #a98552); border: 1px solid #3a2715; border-radius: 2px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(0,0,0,.8);
+  }
+  .cog-spotify__well { padding: 10px; background: #000; }
+</style>

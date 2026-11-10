@@ -1,0 +1,41 @@
+---
+/**
+ * <Frame variant="plate">…anything…</Frame>
+ *
+ * variant:  "dither" | "plate" | "bone" | "panel" | "image"
+ * size:     border thickness in px (optional, each variant has a default)
+ * rivets:   plate only — true (default) or false
+ * image / slice: only for variant="image" (your own frame art in public/)
+ */
+interface Props {
+  variant?: 'dither' | 'plate' | 'bone' | 'panel' | 'image';
+  size?: number;
+  rivets?: boolean;
+  image?: string;
+  slice?: number;
+  class?: string;
+  innerClass?: string;
+}
+const { variant = 'plate', size, rivets = true, image, slice = 30, class: className = '', innerClass = '' } = Astro.props;
+
+const style = [
+  size ? `--frame-size:${size}px` : '',
+  image ? `--frame-image:url('${image}')` : '',
+  variant === 'image' ? `--frame-slice:${slice}` : '',
+].filter(Boolean).join(';');
+
+// rivet positions as % of the frame (corners + midpoints), inset to sit on the border
+const rivetSpots = [
+  ['13px', '13px'], ['13px', '50%'], ['13px', 'calc(100% - 13px)'],
+  ['50%', '13px'], ['50%', 'calc(100% - 13px)'],
+  ['calc(100% - 13px)', '13px'], ['calc(100% - 13px)', '50%'], ['calc(100% - 13px)', 'calc(100% - 13px)'],
+];
+---
+<div class:list={['cog-frame', `cog-frame--${variant}`, className]} style={style || undefined}>
+  {variant === 'plate' && rivets && rivetSpots.map(([top, left]) => (
+    <i class="cog-rivet" style={`top:${top};left:${left}`} aria-hidden="true"></i>
+  ))}
+  <div class:list={['cog-frame__inner', innerClass]}>
+    <slot />
+  </div>
+</div>

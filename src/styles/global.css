@@ -5,23 +5,80 @@
  */
  @import "tailwindcss";
 
- 
+ :root {
+    /* ── Palette ─────────────────────────────────────────────── */
+    --cog-void: #0a0907;          /* page black, slightly warm */
+    --cog-soot: #16130e;          /* inside of frames */
+    --cog-parchment: #d9cfa6;     /* body text */
+    --cog-silver-hi: #bababa;  
+    --cog-silver: #979696; 
+    --cog-silver-lo: #555555;         
+    --cog-bronze-hi: #a0784a;    
+    --cog-gold: #b8975a;          /* thin rules, labels */
+    --cog-gold-dim: #6e5833;
+    --cog-bronze-hi: #a0784a;     /* metal highlights */
+    --cog-bronze: #6b4a2b;
+    --cog-bronze-lo: #2e1f12;     /* metal shadows */
+    --cog-rust: #7a3b22;
+    --cog-blood: #c0281f;         /* your red accent */
+    --cog-bone-hi: #cdc4b2;       /* biomech highlights */
+    --cog-bone: #8a8273;
+    --cog-bone-lo: #2a2621;
+    --cog-phosphor: #8cff9e;      /* CRT green */
+    --cog-phosphor-dim: #1d4f2a;
+  
+    /* ── Type ────────────────────────────────────────────────── */
+    --cog-mono: var(--font-vt323, "VT323"), ui-monospace, monospace;  /* see HOW-TO for loading VT323 */
+  
+    /* ── Textures (inline SVG, no image files needed) ────────── */
+    /* film grain / grime: lay over any surface */
+    --cog-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* 1-bit dither, like the checker border on the tomb poster */
+    --cog-dither: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Cpath fill='%23bdbdbd' d='M0 0h1v1H0zM2 0h1v1H2zM4 0h2v1H4zM7 0h1v1H7zM1 1h1v1H1zM3 1h2v1H3zM6 1h1v1H6zM0 2h2v1H0zM2 2h1v1H2zM5 2h1v1H5zM7 2h1v1H7zM1 3h1v1H1zM3 3h1v1H3zM4 3h1v1H4zM6 3h2v1H6zM0 4h1v1H0zM2 4h2v1H2zM5 4h1v1H5zM7 4h1v1H7zM1 5h2v1H1zM4 5h1v1H4zM6 5h1v1H6zM0 6h1v1H0zM3 6h1v1H3zM5 6h2v1H5zM2 7h1v1H2zM4 7h1v1H4zM7 7h1v1H7z'/%3E%3C/svg%3E");
+    --cog-scanlines: repeating-linear-gradient(to bottom, rgba(0,0,0,.35) 0 1px, transparent 1px 3px);
+  
+    /* ── DITHER LIBRARY ──────────────────────────────────────────
+       Ordered (Bayer 4×4) patterns at 5 densities, plus dither ramps
+       that fade from empty to solid. They're white-on-transparent, used
+       as MASKS so you can colour them anything (see .cog-dither below). */
+    --cog-dot: 2px;               /* size of one dither pixel. 3px = chunkier */
+    --cog-bayer-12: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 2h1v1H2z'/%3E%3C/svg%3E");
+    --cog-bayer-25: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 0h1v1H2zM0 2h1v1H0zM2 2h1v1H2z'/%3E%3C/svg%3E");
+    --cog-bayer-50: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM2 0h1v1H2zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM2 2h1v1H2zM1 3h1v1H1zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-bayer-75: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM1 3h1v1H1zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-bayer-88: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM0 1h1v1H0zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM1 3h1v1H1zM2 3h1v1H2zM3 3h1v1H3z'/%3E%3C/svg%3E");
+    --cog-ramp-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='64' viewBox='0 0 4 64' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM0 4h1v1H0zM2 6h1v1H2zM0 8h1v1H0zM2 8h1v1H2zM2 10h1v1H2zM0 12h1v1H0zM2 12h1v1H2zM0 14h1v1H0zM2 14h1v1H2zM0 16h1v1H0zM2 16h1v1H2zM1 17h1v1H1zM0 18h1v1H0zM2 18h1v1H2zM0 20h1v1H0zM2 20h1v1H2zM1 21h1v1H1zM0 22h1v1H0zM2 22h1v1H2zM3 23h1v1H3zM0 24h1v1H0zM2 24h1v1H2zM1 25h1v1H1zM3 25h1v1H3zM0 26h1v1H0zM2 26h1v1H2zM3 27h1v1H3zM0 28h1v1H0zM2 28h1v1H2zM1 29h1v1H1zM3 29h1v1H3zM0 30h1v1H0zM2 30h1v1H2zM1 31h1v1H1zM3 31h1v1H3zM0 32h1v1H0zM1 32h1v1H1zM2 32h1v1H2zM1 33h1v1H1zM3 33h1v1H3zM0 34h1v1H0zM2 34h1v1H2zM1 35h1v1H1zM3 35h1v1H3zM0 36h1v1H0zM1 36h1v1H1zM2 36h1v1H2zM1 37h1v1H1zM3 37h1v1H3zM0 38h1v1H0zM2 38h1v1H2zM3 38h1v1H3zM1 39h1v1H1zM3 39h1v1H3zM0 40h1v1H0zM1 40h1v1H1zM2 40h1v1H2zM3 40h1v1H3zM1 41h1v1H1zM3 41h1v1H3zM0 42h1v1H0zM2 42h1v1H2zM3 42h1v1H3zM1 43h1v1H1zM3 43h1v1H3zM0 44h1v1H0zM1 44h1v1H1zM2 44h1v1H2zM3 44h1v1H3zM1 45h1v1H1zM3 45h1v1H3zM0 46h1v1H0zM1 46h1v1H1zM2 46h1v1H2zM3 46h1v1H3zM1 47h1v1H1zM3 47h1v1H3zM0 48h1v1H0zM1 48h1v1H1zM2 48h1v1H2zM3 48h1v1H3zM0 49h1v1H0zM1 49h1v1H1zM3 49h1v1H3zM0 50h1v1H0zM1 50h1v1H1zM2 50h1v1H2zM3 50h1v1H3zM1 51h1v1H1zM3 51h1v1H3zM0 52h1v1H0zM1 52h1v1H1zM2 52h1v1H2zM3 52h1v1H3zM0 53h1v1H0zM1 53h1v1H1zM3 53h1v1H3zM0 54h1v1H0zM1 54h1v1H1zM2 54h1v1H2zM3 54h1v1H3zM1 55h1v1H1zM2 55h1v1H2zM3 55h1v1H3zM0 56h1v1H0zM1 56h1v1H1zM2 56h1v1H2zM3 56h1v1H3zM0 57h1v1H0zM1 57h1v1H1zM2 57h1v1H2zM3 57h1v1H3zM0 58h1v1H0zM1 58h1v1H1zM2 58h1v1H2zM3 58h1v1H3zM1 59h1v1H1zM2 59h1v1H2zM3 59h1v1H3zM0 60h1v1H0zM1 60h1v1H1zM2 60h1v1H2zM3 60h1v1H3zM0 61h1v1H0zM1 61h1v1H1zM2 61h1v1H2zM3 61h1v1H3zM0 62h1v1H0zM1 62h1v1H1zM2 62h1v1H2zM3 62h1v1H3zM0 63h1v1H0zM1 63h1v1H1zM2 63h1v1H2zM3 63h1v1H3z'/%3E%3C/svg%3E");  /* 64 dots tall: empty → solid */
+    --cog-ramp-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='64' viewBox='0 0 4 64' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M0 0h1v1H0zM1 0h1v1H1zM2 0h1v1H2zM3 0h1v1H3zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM3 1h1v1H3zM0 2h1v1H0zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM0 3h1v1H0zM1 3h1v1H1zM2 3h1v1H2zM3 3h1v1H3zM0 4h1v1H0zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM3 5h1v1H3zM0 6h1v1H0zM1 6h1v1H1zM2 6h1v1H2zM3 6h1v1H3zM1 7h1v1H1zM2 7h1v1H2zM3 7h1v1H3zM0 8h1v1H0zM1 8h1v1H1zM2 8h1v1H2zM3 8h1v1H3zM0 9h1v1H0zM1 9h1v1H1zM3 9h1v1H3zM0 10h1v1H0zM1 10h1v1H1zM2 10h1v1H2zM3 10h1v1H3zM1 11h1v1H1zM2 11h1v1H2zM3 11h1v1H3zM0 12h1v1H0zM1 12h1v1H1zM2 12h1v1H2zM3 12h1v1H3zM0 13h1v1H0zM1 13h1v1H1zM3 13h1v1H3zM0 14h1v1H0zM1 14h1v1H1zM2 14h1v1H2zM3 14h1v1H3zM1 15h1v1H1zM3 15h1v1H3zM0 16h1v1H0zM1 16h1v1H1zM2 16h1v1H2zM3 16h1v1H3zM1 17h1v1H1zM3 17h1v1H3zM0 18h1v1H0zM1 18h1v1H1zM2 18h1v1H2zM3 18h1v1H3zM1 19h1v1H1zM3 19h1v1H3zM0 20h1v1H0zM1 20h1v1H1zM2 20h1v1H2zM3 20h1v1H3zM1 21h1v1H1zM3 21h1v1H3zM0 22h1v1H0zM2 22h1v1H2zM3 22h1v1H3zM1 23h1v1H1zM3 23h1v1H3zM0 24h1v1H0zM1 24h1v1H1zM2 24h1v1H2zM1 25h1v1H1zM3 25h1v1H3zM0 26h1v1H0zM2 26h1v1H2zM3 26h1v1H3zM1 27h1v1H1zM3 27h1v1H3zM0 28h1v1H0zM1 28h1v1H1zM2 28h1v1H2zM1 29h1v1H1zM3 29h1v1H3zM0 30h1v1H0zM2 30h1v1H2zM1 31h1v1H1zM3 31h1v1H3zM0 32h1v1H0zM2 32h1v1H2zM1 33h1v1H1zM3 33h1v1H3zM0 34h1v1H0zM2 34h1v1H2zM1 35h1v1H1zM3 35h1v1H3zM0 36h1v1H0zM2 36h1v1H2zM1 37h1v1H1zM3 37h1v1H3zM0 38h1v1H0zM2 38h1v1H2zM3 39h1v1H3zM0 40h1v1H0zM2 40h1v1H2zM1 41h1v1H1zM0 42h1v1H0zM2 42h1v1H2zM3 43h1v1H3zM0 44h1v1H0zM2 44h1v1H2zM1 45h1v1H1zM0 46h1v1H0zM2 46h1v1H2zM0 48h1v1H0zM2 48h1v1H2zM0 50h1v1H0zM2 50h1v1H2zM0 52h1v1H0zM2 52h1v1H2zM2 54h1v1H2zM0 56h1v1H0zM2 58h1v1H2zM0 60h1v1H0z'/%3E%3C/svg%3E");  /* 64 dots tall: solid → empty */
+  
+  }
+
+  .void-background{
+	background-color: var(--cog-void);
+  }
 
  p {
-	@apply text-white
+	color: var(--cog-parchment);
  }
 
  h1,
  h2,
  h3 {
-	@apply text-white
+	color: var(--cog-parchment);
  }
 
  a {
-	@apply text-red-600
+	color: var(--cog-blood);
+ }
+
+ a:hover {
+	color: var(--cog-phosphor);
  }
  
  @theme inline {
 	--font-display: var(--font-Jacquard24);
 	--font-sans: var(--font-EBG);
  }
+
+
+
+ 

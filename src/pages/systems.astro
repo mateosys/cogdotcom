@@ -1,0 +1,81 @@
+---
+// Demo page: visit /systems to see every piece. Delete this page whenever you like.
+import '../styles/cog.css';
+import Frame from '../components/cog/Frame.astro';
+import Divider from '../components/cog/Divider.astro';
+import Player from '../components/cog/Player.astro';
+import SpotifyEmbed from '../components/cog/SpotifyEmbed.astro';
+import DitherImage from '../components/cog/DitherImage.astro';
+const densities = ['12', '25', '50', '75', '88'];
+
+const tracks = [
+  { title: 'Vessel (demo)', src: '/audio/demo-drone.wav', note: '0:12' },
+  { title: 'Endless Tomb (demo)', src: '/audio/demo-drone-2.wav', note: '0:12' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Systems | Coven of Guilt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
+  </head>
+  <body class="cog-bg-dither cog-bg-dusk demo">
+    <h1>Dither library</h1>
+    <div class="swatches">
+      {densities.map((d) => (
+        <div class="swatch cog-dither" style={`--d: var(--cog-bayer-${d}); --d-color: var(--cog-parchment)`}><span>bayer-{d}</span></div>
+      ))}
+      <div class="swatch cog-dither cog-dither--ramp" style="--d: var(--cog-ramp-up); --d-color: var(--cog-blood)"><span>ramp-up</span></div>
+      <div class="swatch cog-dither cog-dither--ramp" style="--d: var(--cog-ramp-down); --d-color: var(--cog-phosphor)"><span>ramp-down</span></div>
+    </div>
+
+    <h1>Dithered photos</h1>
+    <div class="grid">
+      <figure class="cap"><DitherImage src="/photos/demo-ritual.jpg" alt="Demo photo, ordered dither" /><figcaption>mode="bayer"</figcaption></figure>
+      <figure class="cap"><DitherImage src="/photos/demo-ritual.jpg" alt="Demo photo, error diffusion" mode="floyd" light="#c0281f" /><figcaption>mode="floyd" light="#c0281f"</figcaption></figure>
+      <figure class="cap"><DitherImage src="/photos/demo-ritual.jpg" alt="Demo photo, chunky green" dot={4} light="#8cff9e" dark="#04140a" reveal /><figcaption>dot=4, green, reveal (hover)</figcaption></figure>
+    </div>
+
+    <h1>Frames</h1>
+    <div class="grid">
+      <Frame variant="dither"><div class="pad"><h2>dither</h2><p>1-bit checker border from the tomb poster.</p></div></Frame>
+      <Frame variant="plate"><div class="pad"><h2>plate</h2><p>Riveted bronze, like the Kinotrope console.</p></div></Frame>
+      <Frame variant="bone"><div class="pad"><h2>bone</h2><p>Biomechanical ribs, after Dark Seed.</p></div></Frame>
+      <Frame variant="panel">
+        I am scared… I am too weak… I cannot keep going any longer…<br /><br />
+        My burden, my last breath, shall be carried… by a vessel.
+      </Frame>
+    </div>
+
+    <h1>Dividers</h1>
+    <Divider variant="fade" />
+    <Divider variant="blood" />
+    <Divider variant="dither" />
+    <Divider variant="pipe" />
+    <Divider variant="rivets" />
+
+    <h1>Player</h1>
+    <Player tracks={tracks} />
+
+    <h1>Spotify</h1>
+    <!-- Replace with the band's own link -->
+    <SpotifyEmbed title="LATEST RELEASE" url="https://open.spotify.com/album/3orQzWkPvOtABfnwueHCmX" />
+  </body>
+</html>
+
+<style is:global>
+  .demo { margin: 0; padding: 32px 16px 80px; background: var(--cog-void); color: var(--cog-parchment); font-family: var(--cog-mono); max-width: 960px; margin-inline: auto; }
+  .demo h1 { font-weight: 400; letter-spacing: .3em; text-transform: uppercase; color: var(--cog-gold); font-size: 20px; margin: 40px 0 16px; }
+  .demo .grid { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .demo .pad { padding: 22px; min-height: 120px; }
+  .demo h2 { margin: 0 0 6px; font-weight: 400; font-size: 26px; color: var(--cog-blood); }
+  .demo p { margin: 0; font-size: 18px; }
+  .demo .swatches { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .demo .swatch { height: 128px; border: 1px solid var(--cog-gold-dim); display: flex; align-items: flex-end; }
+  .demo .swatch span { background: var(--cog-void); padding: 2px 6px; font-size: 15px; }
+  .demo .cap { margin: 0; }
+  .demo figcaption { margin-top: 6px; font-size: 15px; color: var(--cog-gold); }
+</style>
