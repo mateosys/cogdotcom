@@ -8,10 +8,10 @@ The official website for **Coven of Guilt**. Built with [Astro](https://astro.bu
 | ---------- | -------------------------- | -------------------------------------------- |
 | `/`        | `src/pages/index.astro`    | Home page                                    |
 | `/latest`  | `src/pages/latest.astro`   | Latest music (Spotify embeds, audio player)  |
+| `/music`   | `src/pages/music.astro`    | Links to Bandcamp, Spotify and Apple Music   |
 | `/photos`  | `src/pages/photos.astro`   | Photo gallery                                |
 | `/riders`  | `src/pages/riders.astro`   | Tech riders (PDFs in `public/rider/`)        |
 | `/systems` | `src/pages/systems.astro`  | Showcase of the `cog` components             |
-| `/about`   | `src/pages/about.astro`    | About the band                               |
 | `/blog`    | `src/pages/blog/`          | Posts from `src/content/blog/`               |
 
 ## Getting started

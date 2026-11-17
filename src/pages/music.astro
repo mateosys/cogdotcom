@@ -5,15 +5,6 @@ import Footer from "../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 import "../styles/global.css";
 import "../styles/cog.css";
-import { Image } from "astro:assets";
-import keyImage from "../assets/photos/home.png";
-import Divider from "../components/cog/Divider.astro";
-import "../styles/cog.css";
-import Frame from "../components/cog/Frame.astro";
-import Player from "../components/cog/Player.astro";
-import SpotifyEmbed from "../components/cog/SpotifyEmbed.astro";
-import DitherImage from "../components/cog/DitherImage.astro";
-const densities = ["12", "25", "50", "75", "88"];
 ---
 
 <!doctype html>
@@ -28,19 +19,19 @@ const densities = ["12", "25", "50", "75", "88"];
       <div class="mx-auto px-4 max-w-xl">
         <div class="gap-8 grid grid-cols-1">
             <div class="flex flex-row justify-center object-center">
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
                 <a href="https://covenofguilt.bandcamp.com/album/coven-of-guilt-2">Bandcamp</a>
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
             </div>
             <div class="flex flex-row justify-center object-center">
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
                <a href="https://open.spotify.com/artist/0iuWWjGHMb8o2vFIfv9E8e">Spotify</a>
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
             </div>
             <div class="flex flex-row justify-center object-center">
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
                <a href="https://music.apple.com/us/artist/coven-of-guilt/1687791731">Apple Music</a>
-                <img src="https://blob.gifcities.org/gifcities/XO4V7GZKIA24FCV5AL35OMGADZD5TGPJ.gif" alt="" class="w-12 h-auto">
+                <img src="/photos/cross.gif" alt="" class="w-12 h-auto">
             </div>
         </div>
          
